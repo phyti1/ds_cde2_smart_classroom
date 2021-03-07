@@ -6,3 +6,4 @@ boot_out.txt
 .idea/
 .vscode/
 secrets.py
+._code.py

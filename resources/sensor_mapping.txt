@@ -1,0 +1,8 @@
+
+Smart_Classroom Sensor Mapping
+
+A0    -> Buzzer
+D4    -> Ultrasonic
+D2    -> Motion
+I2C_1 -> CO2
+A2    -> PIR (ONTIME + SENSE -> uhrzeigersinn in Anschlag drehen)

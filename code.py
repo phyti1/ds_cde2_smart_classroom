@@ -4,6 +4,8 @@ import adafruit_scd30
 import adafruit_requests as requests
 import busio
 from grove_ultrasonic_ranger import GroveUltrasonicRanger
+import display
+import pir
 
 from secrets import secrets
 
@@ -22,15 +24,27 @@ sonar = GroveUltrasonicRanger(board.D9) # board D4
 while True:
     if scd.data_available:
         sonar_distance = sonar.get_distance()
+        #display.show(round(sonar_distance))
+        #time.sleep(1)
+        display.show(round(scd.CO2))
+        is_pir_active = pir.measure()
+        #display.show(str(is_pir_active))
         try:
             print(requests.post(secrets['endpoint'], json={
                 'device': secrets['device'],
                 'sonar': sonar_distance,
                 'co2': scd.CO2,
                 'temperature': scd.temperature,
-                'humidity': scd.relative_humidity
+                'humidity': scd.relative_humidity,
+                'is_pir_active': is_pir_active
             }).text)
-        except:
-            print('Server error!')
+            print("CO2:   " + str(scd.CO2))
+            print("TEMP:  " + str(scd.temperature))
+            print("HUMI:  " + str(scd.relative_humidity))
+            print("SONIC: " + str(sonar_distance))
+            print("PIR:   " + str(is_pir_active))
+            print()
+        except Exception as e:
+            print(e)
             pass
-    time.sleep(10)
+    #time.sleep(10)

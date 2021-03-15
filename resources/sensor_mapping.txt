@@ -1,8 +1,11 @@
 
 Smart_Classroom Sensor Mapping
 
-A0    -> Buzzer
+A0    -> Temp_Humidity
 D4    -> Ultrasonic
-D2    -> Motion
+D2    -> PIR, Motion (ONTIME + SENSE -> uhrzeigersinn in Anschlag drehen)
 I2C_1 -> CO2
-A2    -> PIR (ONTIME + SENSE -> uhrzeigersinn in Anschlag drehen)
+A2    -> Potentiometer
+A4    -> Display
+UART  -> LED color
+I2C_2 -> Buzzer

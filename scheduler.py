@@ -11,7 +11,7 @@ class Scheduler:
         # check if release is due
         while time.monotonic_ns() < time_release:
             # some delay to not interrupt
-            time.sleep(0.01)
+            time.sleep(0.2)
             for event in self.events:
                 if len(event[1]) > 0:
                     event[0](event[1])

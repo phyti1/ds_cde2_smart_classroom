@@ -90,15 +90,3 @@ class ChainableLED():
     def set_brightness(self, brightness): # 0-1
         self.brightness = brightness
         
-
-if __name__ == "__main__":
-    led = ChainableLED(CLK_PIN, DATA_PIN, NUMBER_OF_LEDS)
-
-    while True:
-        # The first parameter: NUMBER_OF_LEDS - 1; Other parameters: the RGB values.
-        led.set_color_rgb(0, 255, 0, 0)
-        time.sleep(1)
-        led.set_color_rgb(0, 0, 255, 0)
-        time.sleep(1)
-        led.set_color_rgb(0, 0, 0, 255)
-        time.sleep(1)

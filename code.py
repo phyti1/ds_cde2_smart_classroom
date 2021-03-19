@@ -7,11 +7,21 @@ from grove_ultrasonic_ranger import GroveUltrasonicRanger
 import display
 import pir
 from grove_rgb_led import ChainableLED
+import tm1637lib
+import pulseio
 
 from secrets import secrets
 
 # connect to wifi
 import wifi
+
+# buzzer
+cycle = 65535 // 5 # 20% power
+buzzer = pulseio.PWMOut(board.A0,
+  duty_cycle=cycle, variable_frequency=True)
+
+# 100000 is not hearable
+buzzer.frequency = 100000
 
 # CO2
 print("Connecting CO2")
@@ -42,6 +52,13 @@ while True:
             RGB_LED.setColorRGB(1, co2_color, co2_color, 0)
         else:
             RGB_LED.setColorRGB(1, 0, 255 - co2_color, 0)
+
+        if round(scd.CO2) > 6000:
+            buzzer.frequency = 880
+            time.sleep(0.3)
+            buzzer.frequency = 784
+            time.sleep(0.7)
+            buzzer.frequency = 100000
 
         is_pir_active = pir.measure()
         #display.show(str(is_pir_active))

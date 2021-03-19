@@ -1,4 +1,4 @@
-# Based on https://github.com/DexterInd/GrovePi/tree/master/Software/Python/grove_chainable_rgb_led licensed under MIT License
+# Based on https://github.com/DexterInd/GrovePi/tree/master/Software/Python/grove_chainable_led licensed under MIT License
 
 import board
 import digitalio
@@ -16,9 +16,11 @@ class ChainableLED():
  
         self.__clk_pin.direction = digitalio.Direction.OUTPUT
         self.__data_pin.direction = digitalio.Direction.OUTPUT
+
+        self.brightness = 0
  
         for i in range(self.__number_of_leds):
-            self.setColorRGB(i, 0, 0, 0)
+            self.set_color_rgb(i, 0, 0, 0)
  
     def clk(self):
         self.__clk_pin.value = False
@@ -26,7 +28,7 @@ class ChainableLED():
         self.__clk_pin.value = True
         time.sleep(0.00002)
  
-    def sendByte(self, b):
+    def send_byte(self, b):
         # Send one bit at a time, starting with the MSB
         for i in range(8):
             # If MSB is 1, write one and clock it, else write 0 and clock
@@ -39,7 +41,7 @@ class ChainableLED():
             # Advance to the next bit to send
             b = b << 1
  
-    def sendColor(self, red, green, blue):
+    def send_color(self, red, green, blue):
         # Start by sending a byte with the format '1 1 /B7 /B6 /G7 /G6 /R7 /R6' 
         #prefix = B11000000
         prefix = 0xC0
@@ -61,39 +63,42 @@ class ChainableLED():
         if (red & 0x40) == 0:      
             #prefix |= B00000001
             prefix |= 0x01
-        self.sendByte(prefix)
+        self.send_byte(prefix)
  
         # Now must send the 3 colors
-        self.sendByte(blue)
-        self.sendByte(green)
-        self.sendByte(red)
+        self.send_byte(blue)
+        self.send_byte(green)
+        self.send_byte(red)
  
-    def setColorRGB(self, led, red, green, blue):
+    def set_color_rgb(self, led, red, green, blue):
         # Send data frame prefix (32x '0')
-        self.sendByte(0x00)
-        self.sendByte(0x00)
-        self.sendByte(0x00)
-        self.sendByte(0x00)
+        self.send_byte(0x00)
+        self.send_byte(0x00)
+        self.send_byte(0x00)
+        self.send_byte(0x00)
  
         # Send color data for each one of the leds
         for i in range(self.__number_of_leds):
-            self.sendColor(red, green, blue)
+            self.send_color(round(red * self.brightness), round(green * self.brightness), round(blue * self.brightness))
  
         # Terminate data frame (32x "0")
-        self.sendByte(0x00)
-        self.sendByte(0x00)
-        self.sendByte(0x00)
-        self.sendByte(0x00)
+        self.send_byte(0x00)
+        self.send_byte(0x00)
+        self.send_byte(0x00)
+        self.send_byte(0x00)
 
+    def set_brightness(self, brightness): # 0-1
+        self.brightness = brightness
+        
 
 if __name__ == "__main__":
-    rgb_led = ChainableLED(CLK_PIN, DATA_PIN, NUMBER_OF_LEDS)
+    led = ChainableLED(CLK_PIN, DATA_PIN, NUMBER_OF_LEDS)
 
     while True:
         # The first parameter: NUMBER_OF_LEDS - 1; Other parameters: the RGB values.
-        rgb_led.setColorRGB(0, 255, 0, 0)
+        led.set_color_rgb(0, 255, 0, 0)
         time.sleep(1)
-        rgb_led.setColorRGB(0, 0, 255, 0)
+        led.set_color_rgb(0, 0, 255, 0)
         time.sleep(1)
-        rgb_led.setColorRGB(0, 0, 0, 255)
+        led.set_color_rgb(0, 0, 0, 255)
         time.sleep(1)

@@ -86,4 +86,4 @@ while True:
         except Exception as e:
             print(e)
             pass
-    #time.sleep(10)
+    time.sleep(15)

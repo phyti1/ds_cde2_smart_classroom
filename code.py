@@ -6,6 +6,7 @@ import busio
 from grove_ultrasonic_ranger import GroveUltrasonicRanger
 import display
 import pir
+from grove_rgb_led import ChainableLED
 import tm1637lib
 import pulseio
 
@@ -23,12 +24,18 @@ buzzer = pulseio.PWMOut(board.A0,
 buzzer.frequency = 100000
 
 # CO2
+print("Connecting CO2")
 i2c = busio.I2C(board.SCL, board.SDA)
 scd = adafruit_scd30.SCD30(i2c)
+print("Done")
 
 # sonar
+print("Connecting Ultrasonic")
 sonar = GroveUltrasonicRanger(board.D9) # board D4
+print("Done")
 
+# LED
+RGB_LED = ChainableLED(board.RX, board.TX, 1)
 
 # main loop
 while True:
@@ -37,7 +44,14 @@ while True:
         #display.show(round(sonar_distance))
         #time.sleep(1)
         display.show(round(scd.CO2))
-
+        co2_color = int((scd.CO2 % 1000) / 1000 * 255)
+        #print(co2_color)
+        if scd.CO2 > 2000:
+            RGB_LED.setColorRGB(1, 255, 0, 0)
+        elif scd.CO2 > 1000:
+            RGB_LED.setColorRGB(1, co2_color, co2_color, 0)
+        else:
+            RGB_LED.setColorRGB(1, 0, 255 - co2_color, 0)
 
         if round(scd.CO2) > 6000:
             buzzer.frequency = 880
@@ -45,7 +59,6 @@ while True:
             buzzer.frequency = 784
             time.sleep(0.7)
             buzzer.frequency = 100000
-
 
         is_pir_active = pir.measure()
         #display.show(str(is_pir_active))

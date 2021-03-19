@@ -5,7 +5,7 @@ import pulseio
 
 # setup 
 cycle = 65535 // 5 # 20% power
-buzzer = pulseio.PWMOut(board.A0, duty_cycle=cycle, variable_frequency=True)
+buzzer = pulseio.PWMOut(board.RX, duty_cycle=cycle, variable_frequency=True)
 
 # main loop
 while True:

@@ -63,14 +63,20 @@ while True:
         is_pir_active = pir.measure()
         #display.show(str(is_pir_active))
         try:
-            print(requests.post(secrets['endpoint'], json={
-                'device': secrets['device'],
-                'sonar': sonar_distance,
-                'co2': scd.CO2,
-                'temperature': scd.temperature,
-                'humidity': scd.relative_humidity,
-                'is_pir_active': is_pir_active
-            }).text)
+            print(requests.post(
+                secrets['endpoint'] + '/measurements',
+                json={
+                    'sensor_uuid': secrets['uuid'],
+                    'distance': sonar_distance,
+                    'co2': scd.CO2,
+                    'temperature': scd.temperature,
+                    'humidity': scd.relative_humidity,
+                    'movement': is_pir_active
+                },
+                headers={
+                    'Authorization': 'Basic ' + secrets['oracle_token']
+                }
+            ).text)
             print("CO2:   " + str(scd.CO2))
             print("TEMP:  " + str(scd.temperature))
             print("HUMI:  " + str(scd.relative_humidity))

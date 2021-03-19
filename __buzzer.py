@@ -3,9 +3,9 @@ import digitalio
 import time
 import pulseio
 
-# setup 
-cycle = 65535 // 5 # 20% power
-buzzer = pulseio.PWMOut(board.RX, duty_cycle=cycle, variable_frequency=True)
+def __init__(self): 
+    cycle = 65535 // 5 # 20% power
+    buzzer = pulseio.PWMOut(board.i2c, duty_cycle=cycle, variable_frequency=True)
 
 # main loop
 while True:

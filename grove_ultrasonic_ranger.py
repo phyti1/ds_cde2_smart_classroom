@@ -38,6 +38,7 @@ usleep = lambda x: time.sleep(x / 1000000.0)
 
 _TIMEOUT1 = 1000
 _TIMEOUT2 = 10000
+cycle_timeout = 10
 
 class GroveUltrasonicRanger(object):
   def __init__(self, pin):
@@ -84,12 +85,17 @@ class GroveUltrasonicRanger(object):
     distance = (float(t2 - t1) / 1000 / 29 / 2)    # cm * 1000000
     return distance
 
+
   def get_distance(self):
-    while True:
+    cycle = 0
+    while cycle < cycle_timeout:
       dist = self._get_distance()
-      # print(dist)
+      #print(dist)
       if dist:
         return dist
+      cycle += 1
+    print("ERROR: Ultrasonic timeout reached")
+    return None
 
 
 

@@ -10,7 +10,7 @@ from scheduler import Scheduler
 from wifi import Wifi
 from grove_ultrasonic_ranger import GroveUltrasonicRanger
 from display import Display
-from pir import Pir
+from pir import PIR
 from chainable_led import ChainableLED
 from potentiometer import Potentiometer
 from ntp_time import NtpTime
@@ -69,7 +69,7 @@ class WindowMeter:
 
         # Pir
         print("Connecting Pir")
-        self.pir = Pir(board.D5)
+        self.pir = PIR(board.D5)
         print("Connecting Pir: Done")
 
         # real time
@@ -81,17 +81,17 @@ class WindowMeter:
 
     def __load_network_time(self):
         self.ntp_time.time()
-    
+
     def __run_backend(self):
         self.__init_backend()
-        
+
         print("Entering Main-Loop")
         # main loop
         while True:
             while not self.scd.data_available:
                 print("SCD Data not avaliable.")
                 time.sleep(0.5)
-            
+
             sonar_distance = self.sonar.get_distance()
             #co2_color = int((scd.CO2 % 1000) / 1000 * 255)
             #print(co2_color)

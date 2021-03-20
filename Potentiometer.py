@@ -16,5 +16,8 @@ class Potentiometer():
     def read_value_0to1(self):
         reading = self.read_value()
         uniformed_reading = 1- float(reading) / 65535.0
+        # reset to zero if almost reached, otherwise it may not be switching off 
+        if(uniformed_reading < 0.05):
+            uniformed_reading = 0
         #print(uniformed_reading)
         return uniformed_reading

@@ -23,21 +23,25 @@ class Wifi:
         esp32_reset = DigitalInOut(board.D12)
 
         spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
-        esp = adafruit_esp32spi.ESP_SPIcontrol(spi, esp32_cs, esp32_ready, esp32_reset)
+        # class property to be able to access it from outside
+        self.esp = adafruit_esp32spi.ESP_SPIcontrol(spi, esp32_cs, esp32_ready, esp32_reset)
 
-        requests.set_socket(socket, esp)
+        requests.set_socket(socket, self.esp)
 
-        if esp.status == adafruit_esp32spi.WL_IDLE_STATUS:
+        if self.esp.status == adafruit_esp32spi.WL_IDLE_STATUS:
             print("ESP32 found and in idle mode")
 
         print("Connecting to AP...")
-        while not esp.is_connected:
+        while not self.esp.is_connected:
             try:
-                esp.connect_AP(self.ssid, self.password) # secrets["ssid"], secrets["password"]
+                self.esp.connect_AP(self.ssid, self.password) # secrets["ssid"], secrets["password"]
             except RuntimeError as e:
                 print("could not connect to AP, retrying: ", e)
                 continue
-        print("Connected to", str(esp.ssid, "utf-8"), "\tRSSI:", esp.rssi)
-        print("My IP address is", esp.pretty_ip(esp.ip_address))
-        print("Ping google.com: %d ms" % esp.ping("google.com"))
+        print("Connected to", str(self.esp.ssid, "utf-8"), "\tRSSI:", self.esp.rssi)
+        print("My IP address is", self.esp.pretty_ip(self.esp.ip_address))
+        print("Ping google.com: %d ms" % self.esp.ping("google.com"))
         print("Done!")
+    
+    def get_esp(self):
+        return self.esp

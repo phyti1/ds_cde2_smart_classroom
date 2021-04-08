@@ -27,10 +27,11 @@ class NtpTime:
 
         # Fetch and set the microcontroller's current UTC time
         # keep retrying until a valid time is returned
+        ntp.set_time()
         while not ntp.valid_time:
-            ntp.set_time()
             print("Failed to obtain time, retrying in 5 seconds...")
             time.sleep(5)
+            ntp.set_time()
 
         # Get the current time in seconds since Jan 1, 1970
         current_time = time.time()

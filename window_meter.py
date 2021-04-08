@@ -29,8 +29,9 @@ class WindowMeter:
     def __init_backend(self):
         # wifi
         print("Connecting Wifi")
-        wifi = Wifi(secrets["ssid"], secrets["password"])
-        wifi.connect()
+        self.wifi = Wifi(secrets["ssid"], secrets["password"])
+        self.wifi.initialize()
+        self.wifi.connect()
         print("Connecting Wifi: Done")
 
         # buzzer
@@ -74,7 +75,7 @@ class WindowMeter:
 
         # real time
         print("Getting network time")
-        self.ntp_time = NtpTime(wifi.get_esp())
+        self.ntp_time = NtpTime(self.wifi.get_esp())
         self.__load_network_time()
         print("Getting network time: Done")
 
@@ -84,58 +85,71 @@ class WindowMeter:
 
     def __run_backend(self):
         self.__init_backend()
-
-        print("Entering Main-Loop")
-        # main loop
+        # ensure restart incase of error
         while True:
-            while not self.scd.data_available:
-                print("SCD Data not avaliable.")
-                time.sleep(0.5)
-
-            sonar_distance = self.sonar.get_distance()
-            #co2_color = int((scd.CO2 % 1000) / 1000 * 255)
-            #print(co2_color)
-
-            if round(self.scd.CO2) > 6000:
-                self.buzzer.frequency = 880
-                self.sched.sleep_ms(300)
-                self.buzzer.frequency = 784
-                self.sched.sleep_ms(700)
-                self.buzzer.frequency = 100000
-
-            is_pir_active = self.pir.measure()
-            #display.show(str(is_pir_active))
             try:
-                if not self.is_debugging:
-                    print(requests.post(
-                        secrets['endpoint'] + '/measurements',
-                        json={
-                            'sensor_uuid': secrets['uuid'],
-                            'distance': sonar_distance,
-                            'co2': self.scd.CO2,
-                            'temperature': self.scd.temperature,
-                            'humidity': self.scd.relative_humidity,
-                            'movement': is_pir_active
-                        },
-                        headers={
-                            'Authorization': 'Basic ' + secrets['oracle_token']
-                        }
-                    ).text)
-                print("CO2:   " + str(self.scd.CO2))
-                print("TEMPE: " + str(self.scd.temperature))
-                print("HUMID: " + str(self.scd.relative_humidity))
-                print("SONIC: " + str(sonar_distance))
-                print("PIR:   " + str(is_pir_active))
-                print("BRIGH: " + str(round(self.brightness, 2)))
-                print()
+                print("Entering Main-Loop")
+                # main loop
+                while True:
+                    while not self.scd.data_available:
+                        print("SCD Data not avaliable.")
+                        time.sleep(0.5)
+
+                    sonar_distance = self.sonar.get_distance()
+                    #co2_color = int((scd.CO2 % 1000) / 1000 * 255)
+                    #print(co2_color)
+
+                    if round(self.scd.CO2) > 6000:
+                        self.buzzer.frequency = 880
+                        self.sched.sleep_ms(300)
+                        self.buzzer.frequency = 784
+                        self.sched.sleep_ms(700)
+                        self.buzzer.frequency = 100000
+
+                    is_pir_active = self.pir.measure()
+                    #display.show(str(is_pir_active))
+                    if not self.is_debugging:
+                        print(requests.post(
+                            secrets['endpoint'] + '/measurements',
+                            json={
+                                'sensor_uuid': secrets['uuid'],
+                                'distance': sonar_distance,
+                                'co2': self.scd.CO2,
+                                'temperature': self.scd.temperature,
+                                'humidity': self.scd.relative_humidity,
+                                'movement': is_pir_active
+                            },
+                            headers={
+                                'Authorization': 'Basic ' + secrets['oracle_token']
+                            }
+                        ).text)
+                    print("CO2:   " + str(self.scd.CO2))
+                    print("TEMPE: " + str(self.scd.temperature))
+                    print("HUMID: " + str(self.scd.relative_humidity))
+                    print("SONIC: " + str(sonar_distance))
+                    print("PIR:   " + str(is_pir_active))
+                    print("BRIGH: " + str(round(self.brightness, 2)))
+                    print()
+                    # loop delay
+                    if self.is_debugging:
+                        self.sched.sleep_ms(2000)
+                    else:
+                        self.sched.sleep_ms(15000)
             except Exception as e:
-                print(e)
-                pass
-            # loop delay
-            if self.is_debugging:
-                self.sched.sleep_ms(2000)
-            else:
-                self.sched.sleep_ms(15000)
+                print('Logging to REST API...')
+                print(requests.post(
+                    secrets['endpoint'] + '/logs',
+                    json={
+                        'sensor_uuid': secrets['uuid'],
+                        'log_msg': str(e),
+                        'log_level': 'error',
+                    },
+                    headers={
+                        'Authorization': 'Basic ' + secrets['oracle_token']
+                    }
+                ).text)
+                print('Log sent.')
+                self.wifi.connect()
 
     def __check_frontend(self):
         self.display.show(round(self.scd.CO2))

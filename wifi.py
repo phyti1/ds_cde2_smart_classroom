@@ -14,7 +14,7 @@ class Wifi:
         self.ssid = ssid
         self.password = password
 
-    def connect(self):
+    def initialize(self):
 
         print("ESP32 SPI webclient test")
 
@@ -28,6 +28,7 @@ class Wifi:
 
         requests.set_socket(socket, self.esp)
 
+    def connect(self):
         if self.esp.status == adafruit_esp32spi.WL_IDLE_STATUS:
             print("ESP32 found and in idle mode")
 
@@ -42,6 +43,6 @@ class Wifi:
         print("My IP address is", self.esp.pretty_ip(self.esp.ip_address))
         print("Ping google.com: %d ms" % self.esp.ping("google.com"))
         print("Done!")
-    
+
     def get_esp(self):
         return self.esp

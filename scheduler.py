@@ -10,7 +10,7 @@ class Scheduler:
         time_release = time.monotonic_ns() + delay_ms * 1000000
         # check if release is due
         while time.monotonic_ns() < time_release:
-            # some delay to not interrupt
+            # some delay to not interrupt co2 measurement (spi communication?)
             time.sleep(0.2)
             for event in self.events:
                 if len(event[1]) > 0:

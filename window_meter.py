@@ -5,6 +5,7 @@ import adafruit_requests as requests
 import busio
 import tm1637lib
 import pulseio
+import gc
 
 from scheduler import Scheduler
 from wifi import Wifi
@@ -132,24 +133,33 @@ class WindowMeter:
                     print()
                     # loop delay
                     if self.is_debugging:
+                        # test system values
+                        print(time.monotonic_ns())
+                        print(f'memory old: {gc.mem_free()}')
+                        gc.collect()
+                        print(f'memory new: {gc.mem_free()}')
                         self.sched.sleep_ms(2000)
                     else:
+                        gc.collect()
                         self.sched.sleep_ms(15000)
             except Exception as e:
-                print('Logging to REST API...')
-                print(requests.post(
-                    secrets['endpoint'] + '/logs',
-                    json={
-                        'sensor_uuid': secrets['uuid'],
-                        'log_msg': str(e),
-                        'log_level': 'error',
-                    },
-                    headers={
-                        'Authorization': 'Basic ' + secrets['oracle_token']
-                    }
-                ).text)
-                print('Log sent.')
-                self.wifi.connect()
+                print('Main Loop crashed with exception:')
+                print(e)
+                if not self.is_debugging:
+                    print('Logging to REST API...')
+                    print(requests.post(
+                        secrets['endpoint'] + '/logs',
+                        json={
+                            'sensor_uuid': secrets['uuid'],
+                            'log_msg': str(e),
+                            'log_level': 'error',
+                        },
+                        headers={
+                            'Authorization': 'Basic ' + secrets['oracle_token']
+                        }
+                    ).text)
+                    print('Log sent.')
+                    self.wifi.connect()
 
     def __check_frontend(self):
         self.display.show(round(self.scd.CO2))

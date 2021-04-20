@@ -1,0 +1,32 @@
+
+SCD Data not avaliable.
+
+CO2:   841.446
+TEMPE: 25.1308
+HUMID: 32.5577
+SONIC: 6.84002
+PIR:   False
+BRIGH: 0.14
+
+SCD Data not avaliable.
+SCD Data not avaliable.
+Main Loop crashed with exception:
+ESP32 not responding
+Logging to REST API...
+Traceback (most recent call last):
+  File "code.py", line 24, in <module>
+  File "window_meter.py", line 179, in run
+  File "window_meter.py", line 162, in __run_backend
+  File "window_meter.py", line 158, in __run_backend
+  File "adafruit_requests.py", line 686, in post
+  File "adafruit_requests.py", line 562, in request
+  File "adafruit_requests.py", line 420, in _get_socket
+  File "adafruit_esp32spi/adafruit_esp32spi_socket.py", line 42, in getaddrinfo
+  File "adafruit_esp32spi/adafruit_esp32spi.py", line 608, in get_host_by_name
+  File "adafruit_esp32spi/adafruit_esp32spi.py", line 325, in _send_command_get_response
+  File "adafruit_esp32spi/adafruit_esp32spi.py", line 308, in _wait_response_cmd
+  File "adafruit_esp32spi/adafruit_esp32spi.py", line 292, in _wait_response_cmd
+  File "adafruit_esp32spi/adafruit_esp32spi.py", line 271, in _wait_spi_char
+RuntimeError: Timed out waiting for SPI char
+
+Code done running.

@@ -18,21 +18,32 @@ class Wifi:
 
         print("ESP32 SPI webclient test")
 
-        esp32_cs = DigitalInOut(board.D13)
-        esp32_ready = DigitalInOut(board.D11)
-        esp32_reset = DigitalInOut(board.D12)
+        self.esp32_cs = DigitalInOut(board.D13)
+        self.esp32_ready = DigitalInOut(board.D11)
+        self.esp32_reset = DigitalInOut(board.D12)
 
-        spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
+        self.spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
+
         # class property to be able to access it from outside
-        self.esp = adafruit_esp32spi.ESP_SPIcontrol(spi, esp32_cs, esp32_ready, esp32_reset)
+        self.esp = adafruit_esp32spi.ESP_SPIcontrol(self.spi, self.esp32_cs, self.esp32_ready, self.esp32_reset)
+
 
         requests.set_socket(socket, self.esp)
+
+    def reconnect(self):
+        self.spi.deinit()
+        self.spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
+        
+        # class property to be able to access it from outside
+        self.esp = adafruit_esp32spi.ESP_SPIcontrol(self.spi, self.esp32_cs, self.esp32_ready, self.esp32_reset)
+
+        self.connect()
 
     def connect(self):
         if self.esp.status == adafruit_esp32spi.WL_IDLE_STATUS:
             print("ESP32 found and in idle mode")
 
-        print("Connecting to AP...")
+        print("Connecting to AP.")
         while not self.esp.is_connected:
             try:
                 self.esp.connect_AP(self.ssid, self.password) # secrets["ssid"], secrets["password"]
@@ -42,7 +53,7 @@ class Wifi:
         print("Connected to", str(self.esp.ssid, "utf-8"), "\tRSSI:", self.esp.rssi)
         print("My IP address is", self.esp.pretty_ip(self.esp.ip_address))
         print("Ping google.com: %d ms" % self.esp.ping("google.com"))
-        print("Done!")
+        print("Connecting to AP: Done.")
 
     def get_esp(self):
         return self.esp

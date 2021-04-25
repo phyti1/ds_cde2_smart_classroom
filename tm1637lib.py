@@ -75,6 +75,7 @@ class Grove4DigitDisplay(object):
         self._show()
  
     def show(self, data):
+
         if type(data) is str:
             for i, c in enumerate(data):
                 if c in charmap:

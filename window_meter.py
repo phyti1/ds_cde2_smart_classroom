@@ -166,46 +166,42 @@ class WindowMeter:
                     is_pir_active = self.pir.measure()
                     #display.show(str(is_pir_active))
                     if not self.is_debugging:
-                        def send_data(self):
-                            response = requests.post(
-                                secrets['endpoint'] + '/measurements',
-                                json={
-                                    'sensor_uuid': secrets['uuid'],
-                                    'distance': sonar_distance,
-                                    'co2': self.scd.CO2,
-                                    'temperature': self.scd.temperature,
-                                    'humidity': self.scd.relative_humidity,
-                                    'movement': is_pir_active
-                                },
-                                headers={
-                                    'Authorization': 'Basic ' + secrets['oracle_token']
-                                }
-                            )
-                            # print(response.headers)
-                            # print(response.content)
-                            print(response.text)
-                            self.__handle_offline(False, [])
-
                         try:
+                            def send_data(self):
+                                response = requests.post(
+                                    secrets['endpoint'] + '/measurements',
+                                    json={
+                                        'sensor_uuid': secrets['uuid'],
+                                        'distance': sonar_distance,
+                                        'co2': self.scd.CO2,
+                                        'temperature': self.scd.temperature,
+                                        'humidity': self.scd.relative_humidity,
+                                        'movement': is_pir_active
+                                    },
+                                    headers={
+                                        'Authorization': 'Basic ' + secrets['oracle_token']
+                                    }
+                                )
+                                # print(response.headers)
+                                # print(response.content)
+                                print(response.text)
+                                # TODO make file system accessable!!
+                                # self.__handle_offline(False, [])
+
                             try:
-                                send_data()
+                                send_data(self)
+                                self.display.set_error('')
                             except:
                                 # if no internet retry after reconnecting the wifi module
                                 self.wifi.reconnect()
-                                send_data()
+                                send_data(self)
+                                self.display.set_error('')
                         except Exception as e:
                             print('no internet, writing to file')
                             sys.print_exception(e)
-                            self.__handle_offline(True, [secrets['uuid'], sonar_distance, self.scd.CO2, self.scd.temperature, self.scd.relative_humidity, is_pir_active])
-                            print('Trying to reconnect.')
-                            # make hard reset because reconnecting to wifi does not work at all
-
-                            # try:
-                            #     self.__connect_wifi()
-                            #     print('Trying to reconnect: Done.')
-                            # except Exception as e:
-                            #     sys.print_exception(e)
-                            #     print('Trying to reconnect: Failed.')
+                            self.display.set_error('OFFLInE')
+                            # TODO make file system accessable!!
+                            # self.__handle_offline(True, [secrets['uuid'], sonar_distance, self.scd.CO2, self.scd.temperature, self.scd.relative_humidity, is_pir_active])
 
 
                     print("CO2:   " + str(self.scd.CO2))
@@ -252,9 +248,9 @@ class WindowMeter:
                 #         print(e)
 
     def __check_frontend(self):
-        self.display.show(round(self.scd.CO2))
+        self.display.set_co2(round(self.scd.CO2))
         self.brightness = self.potentiometer.read_value_0to1()
-        self.display.set_brightness(round(self.brightness * 7))
+        self.display.set_brightness(self.brightness)
         self.led.set_brightness(self.brightness)
         if self.scd.CO2 > 2000:
             self.led.set_color_rgb(1, 255, 0, 0)

@@ -88,5 +88,10 @@ class ChainableLED():
         self.send_byte(0x00)
 
     def set_brightness(self, brightness): # 0-1
-        self.brightness = brightness
+        # print(brightness)
+        # tune 0 to be able to see display without the led
+        if brightness < 0.1:
+            self.brightness = 0
+        else:
+            self.brightness = brightness
         
